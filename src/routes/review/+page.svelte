@@ -2,9 +2,18 @@
   import { enhance } from '$app/forms'
   import type { ActionData } from './$types'
   import { curriculumStore } from '$lib/stores'
+  import type { ReviewItem } from '$lib/seed'
   let { form }: { form: ActionData } = $props()
   let selectedIds = $state<string[]>([])
   let reviewComments = $state<Record<string, string>>({})
+
+  // 服务端校验通过的修订进入版本化图谱：审阅意见集变化会推进内容版本，未交付调阅包随之失效。
+  $effect(() => {
+    const item = form?.item as ReviewItem | undefined
+    if (form?.success && item && !$curriculumStore.reviewItems.some((existing) => existing.id === item.id)) {
+      curriculumStore.addReviewItem(item)
+    }
+  })
   const pending = $derived($curriculumStore.reviewItems.filter((item) => item.status === '待审阅'))
   const courseNames = $derived($curriculumStore.nodes.filter((node) => node.type === '课程'))
   const requirements = $derived($curriculumStore.nodes.filter((node) => node.type === '毕业要求'))
