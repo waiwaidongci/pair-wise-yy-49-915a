@@ -2,6 +2,7 @@ import { writable } from 'svelte/store'
 import { browser } from '$app/environment'
 import type { GraphNode, Mapping, ReviewItem } from './seed'
 import { seedState } from './seed'
+import { migrateCurriculum } from './packages'
 
 type CurriculumState = {
   nodes: GraphNode[]
@@ -13,7 +14,10 @@ type CurriculumState = {
 }
 
 const saved = browser ? localStorage.getItem('curriculum-map-draft-v1') : null
-const initial: CurriculumState = saved ? JSON.parse(saved) : structuredClone(seedState)
+// 兼容升级：已有数据缺少版本号时补齐 revision、locked 与数组字段。
+const initial: CurriculumState = saved
+  ? (migrateCurriculum(JSON.parse(saved)) as CurriculumState)
+  : { ...structuredClone(seedState), draft: '' }
 
 function createCurriculumStore() {
   const { subscribe, update, set } = writable<CurriculumState>({ ...initial, draft: initial.draft ?? 'C-308 对 GR-06 的案例证据不足，需补充评分记录。' })

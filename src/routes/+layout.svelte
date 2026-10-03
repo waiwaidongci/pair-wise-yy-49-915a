@@ -13,6 +13,7 @@
     { href: '/courses', label: '课程与单元', icon: '课' },
     { href: '/matrix', label: '映射图谱', icon: '图' },
     { href: '/review', label: '改革审阅', icon: '审' },
+    { href: '/packages', label: '调阅包', icon: '包' },
   ]
 </script>
 
